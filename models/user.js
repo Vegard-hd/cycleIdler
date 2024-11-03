@@ -28,6 +28,9 @@ module.exports = (sequelize, Sequelize) => {
   );
   User.associate = function (models) {
     //setup associations for user here
+    User.hasOne(models.Tyres);
+    User.hasOne(models.Wheels);
+    User.hasOne(models.Frame);
     // User.belongsToMany(models.Hotel, { through: models.Rate });
     // User.belongsToMany(models.Room, { through: models.Reservation });
   };
