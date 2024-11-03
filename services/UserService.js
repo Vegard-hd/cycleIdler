@@ -40,7 +40,7 @@ class UserService {
           attributes: ["StartDate", "EndDate"],
         },
         include: {
-          model: this.Hotel,
+          // model: this.Hotel,
         },
       },
     });
@@ -49,13 +49,13 @@ class UserService {
     return await this.User.findOne({
       where: { username: username },
       include: {
-        model: this.Room,
-        through: {
-          attributes: ["StartDate", "EndDate"],
-        },
-        include: {
-          model: this.Hotel,
-        },
+        // model: this.Room,
+        // through: {
+        //   attributes: ["StartDate", "EndDate"],
+        // },
+        // include: {
+        //   model: this.Hotel,
+        // },
       },
     });
   }

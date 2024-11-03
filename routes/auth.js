@@ -1,25 +1,102 @@
-const express = require("express");
-const router = express.Router();
-const { auth } = require('express-openid-connect');
-require('dotenv').config();
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.AUTHSECRET,
-  baseURL: process.env.BASEURL,
-  clientID: process.env.CLIENTID,
-  issuerBaseURL: process.env.ISSUERBASEURL
-};
+var express = require("express");
+var passport = require("passport");
+var LocalStrategy = require("passport-local");
+var crypto = require("crypto");
+var db = require("../models");
+var UserService = require("../services/UserService");
+var userService = new UserService(db);
 
-// auth router attaches /login, /logout, and /callback routes to the baseURL
-router.use(auth(config));
+passport.use(
+	new LocalStrategy(function verify(username, password, cb) {
+		userService.getOneByName(username).then((data) => {
+			if (data === null) {
+				return cb(null, false, { message: "Incorrect username or password." });
+			}
+			crypto.pbkdf2(
+				password,
+				data.Salt,
+				310000,
+				32,
+				"sha256",
+				function (err, hashedPassword) {
+					if (err) {
+						return cb(err);
+					}
+					if (!crypto.timingSafeEqual(data.EncryptedPassword, hashedPassword)) {
+						return cb(null, false, {
+							message: "Incorrect username or password.",
+						});
+					}
+					return cb(null, data);
+				}
+			);
+		});
+	})
+);
 
-// req.isAuthenticated is provided from the auth router
-router.get('/', (req, res) => {
-  res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
+passport.serializeUser(function (user, cb) {
+	process.nextTick(function () {
+		cb(null, { id: user.id, username: user.Username, role: user.Role });
+	});
 });
 
+passport.deserializeUser(function (user, cb) {
+	process.nextTick(function () {
+		return cb(null, user);
+	});
+});
 
+var router = express.Router();
+router.get("/login", function (req, res, next) {
+	const username = req.user?.username;
+	res.render("login", { username: username });
+});
 
+router.post(
+	"/login/password",
+	passport.authenticate("local", {
+		successReturnToOrRedirect: "/",
+		failureRedirect: "/login",
+		failureMessage: true,
+	})
+);
+
+router.post("/logout", function (req, res, next) {
+	req.logout(function (err) {
+		if (err) {
+			return next(err);
+		}
+		res.redirect("/");
+	});
+});
+
+router.get("/signup", function (req, res, next) {
+	const username = req.user?.username ?? 0;
+	res.render("signup", { username: username });
+});
+
+router.post("/signup", function (req, res, next) {
+	var salt = crypto.randomBytes(16);
+	crypto.pbkdf2(
+		req.body.password,
+		salt,
+		310000,
+		32,
+		"sha256",
+		function (err, hashedPassword) {
+			if (err) {
+				return next(err);
+			}
+			userService.create(
+				req.body.firstname,
+				req.body.lastname,
+				req.body.username,
+				salt,
+				hashedPassword
+			);
+			res.redirect("/login");
+		}
+	);
+});
 
 module.exports = router;
