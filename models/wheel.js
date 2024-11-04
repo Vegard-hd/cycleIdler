@@ -3,9 +3,13 @@ module.exports = (sequelize, Sequelize) => {
     "Wheel",
     {
       SpeedMultiplier: {
-        type: Sequelize.DataTypes.STRING,
+        type: Sequelize.DataTypes.DECIMAL(5, 3),
         allowNull: false,
-        unique: true,
+        default: 1.0,
+        validate: {
+          min: 1.0,
+          max: 10.0,
+        },
       },
       // Add other relevant fields
     },
