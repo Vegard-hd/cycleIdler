@@ -19,7 +19,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       Role: {
         type: Sequelize.DataTypes.STRING,
-        defaultValue: "User",
+        defaultValue: "Player",
+      },
+      Time: {
+        type: Sequelize.DataTypes.STRING,
       },
     },
     {
