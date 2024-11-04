@@ -19,6 +19,7 @@ module.exports = (sequelize, Sequelize) => {
   );
   Wheel.associate = function (models) {
     // Define associations here
+    Wheel.belongsTo(models.User);
   };
   return Wheel;
 };

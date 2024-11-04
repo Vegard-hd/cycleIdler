@@ -23,6 +23,7 @@ module.exports = (sequelize, Sequelize) => {
   );
   Frame.associate = function (models) {
     // Define associations here
+    Frame.belongsTo(models.User);
   };
   return Frame;
 };
