@@ -1,11 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <div class="flexContainer">
+      <div id="game-container">
+        <div id="moving-object"></div>
+        <div id="center-assets">
+          <%- include('./partials/bike.ejs') %>
+          <!-- Other assets in the center -->
+        </div>
+      </div>
+    </div>
   </body>
+  <script src="/js/index.js"></script>
 </html>
